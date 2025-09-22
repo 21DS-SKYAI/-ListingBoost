@@ -1,61 +1,99 @@
+# ListingBoost — GPT-Powered Real Estate Caption Generator
 
+**Goal:** Generate persuasive, on-brand listing captions in seconds.
 
-## 1. Problem Statement
-Real estate agents at **Sahai Estates** were spending **30–45 minutes** writing marketing captions for each property listing.
-- Slow, repetitive, and inconsistent process.
-- Delays in posting = missed engagement opportunities.
-- Lack of consistency in tone and style across platforms.
+This repo contains a minimal, production-ready demo (Streamlit app + CLI) that you can run locally
+or deploy (Docker). It uses **Hugging Face Transformers** by default (offline-capable) and can be
+swapped to **OpenAI** or other providers via a simple strategy pattern.
 
-## 2. Business Need
-- Faster content creation for high-end property listings.
-- Consistency in language and tone across portals, WhatsApp, and social media.
-- Higher engagement & inquiries leading to faster deal closures.
+---
 
-## 3. Solution (Technical Approach)
-Built a **GPT-powered automation tool** with Hugging Face + Streamlit:
+## 🔧 Features
+- Streamlit UI for brokers/marketers
+- Prompt template with property context (location, BHK, area, price, amenities, tone)
+- Local **Hugging Face** pipeline (default: `google/flan-t5-base` for text2text) — replace with any model you prefer
+- Optional **OpenAI** backend (set `PROVIDER=openai` + `OPENAI_API_KEY` in `.env`)
+- Reusable Python module (`listingboost/`) for programmatic use
+- Sample data + a quick notebook
+- Dockerfile and GitHub Actions CI stub
 
-- Prompt Engineering → Added property-specific context (location, size, amenities, price).
-- Fine-tuned GPT on property descriptions & luxury real estate marketing style.
-- User Interface → Simple Streamlit app for agents to generate captions instantly.
-- Deployment → Python backend, Hugging Face Transformers, AWS S3 for hosting.
+---
 
-**Tech Stack:** `Python | Hugging Face (Transformers, PEFT, TRL) | Streamlit | AWS S3`
+## 🏁 Quickstart
 
-## 4. Results (Impact)
-- 70% reduction in time (30 min → <5 min per caption).
-- 2x higher engagement rate (measured via inquiries).
-- 20+ hours/month saved for the sales team.
+### 1) Setup
+```bash
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env
+```
 
-## 5. Sample Output
-**Input:** `3BHK, 1800 sq ft, Sea-facing, Worli, ₹12 Cr, 2 Car Parks, Clubhouse Access`
+### 2) Run Streamlit app
+```bash
+streamlit run ListingBoost/app/app.py
+```
 
-**Generated Caption:**  
-\"Wake up to breathtaking sea views every morning. This 3BHK luxury apartment in Worli offers 1800 sq ft of elegant living with modern amenities, 2 car parks, and exclusive clubhouse access. A rare gem priced at ₹12 Cr. Book your private tour today!\"
+### 3) CLI usage
+```bash
+python ListingBoost/inference/generate_caption.py \  --bhk 3 --area 1800 --locality Worli --city Mumbai \  --price "₹12 Cr" --amenities "2 Car Parks, Clubhouse" --tone "luxury"
+```
 
-## 6. Transferability
-The framework is **domain-agnostic** and can be extended:
-- E-commerce → Product description automation.
-- Travel → Personalized itinerary captions.
-- Marketing → Social media ad copy generation.
+---
 
-## Case Study Slide Template
+## 🔀 Switch model/provider
+Set in `.env`:
+```
+PROVIDER=huggingface     # or: openai
+HF_MODEL_NAME=google/flan-t5-base
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_API_KEY=sk-...
+```
 
-### Slide 1 – Challenge
-- Agents spent 30–45 mins writing each caption.
-- Inconsistent tone across listings.
-- Lost time = fewer deals closed.
+> Tip: For **better marketing copy**, try an instruction-tuned LLM. For **private/offline**, use a local HF model.
+Replace `google/flan-t5-base` with a stronger model (e.g., `google/flan-t5-large`) if you have GPU/RAM.
 
-### Slide 2 – Solution
-- GPT-powered caption generator.
-- Prompt engineering with property context (location, amenities, price).
-- Streamlit app for easy use.
+---
 
-### Slide 3 – Results
-- Caption time reduced by 70%.
-- Engagement rate on listings doubled.
-- Sales team saved 20+ hours/month.
+## 📦 Project Structure
+```
+ListingBoost/
+  app/
+    app.py
+    utils.py
+  prompts/
+    base_prompt.txt
+  inference/
+    generate_caption.py
+  data/
+    sample_listings.csv
+  notebooks/
+    listingboost_quickstart.ipynb
+requirements.txt
+.env.example
+Dockerfile
+.github/workflows/ci.yml
+```
 
-### Slide 4 – Scalability
-- Can be applied to e-commerce, travel, or marketing domains.
-- Reusable framework for AI-driven content automation.
-"""
+---
+
+## 🧪 Example prompt → output
+**Input context:** 3BHK, 1800 sq ft, Sea-facing, Worli, ₹12 Cr, 2 Car Parks, Clubhouse  
+**Output (sample):** *"Wake up to sweeping sea views in this elegant 3BHK at Worli. 1800 sq ft of refined living with 2 car parks and exclusive clubhouse access. Priced at ₹12 Cr. Book your private tour."*
+
+---
+
+## 📈 Notes
+- The demo uses a lightweight HF model so it runs on CPU. For production, integrate a stronger hosted model.
+- You can log generations and A/B test tones in your marketing stack.
+- Pair this with a RAG layer to include society/tower highlights automatically.
+
+---
+
+## 🛡️ Safety & Compliance
+- Never paste secrets into code. Use `.env`.
+- Review generated content for accuracy and compliance (RERA, fair-housing, etc.).
+
+---
+
+## 📝 License
+MIT
